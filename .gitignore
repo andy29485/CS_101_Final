@@ -1,5 +1,14 @@
 *.class
 
+*.c
+*.cpp
+*.h
+*.hpp
+*.o
+
+TFTLCD-Library/
+Touch-Screen-Library/
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
