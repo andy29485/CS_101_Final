@@ -7,6 +7,21 @@
 #ifndef SNAKE_HPP
 #define SNAKE_HPP
 
-//TODO
+enum Direction {
+  LEFT,
+  UP,
+  RIGHT,
+  DOWN
+};
+
+typedef struct {
+  int x;
+  int y;
+  int score;
+  Direction dir;
+} Player;
+
+void start_snake();
+
 
 #endif
