@@ -15,13 +15,12 @@ enum Direction {
 };
 
 typedef struct {
-  int x;
-  int y;
-  int score;
+  int       x;
+  int       y;
+  int       score;
   Direction dir;
 } Player;
 
 void start_snake();
-
 
 #endif
