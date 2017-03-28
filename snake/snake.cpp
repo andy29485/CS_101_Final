@@ -35,24 +35,30 @@ void start_snake() {
 
 // displays the map
 //   returns false on game over
-void display(char **map) {
-  clearDisplay(); // TODO - not sure about the arduino API
+void display(char **map, const int& score) {
+  int width    = (SCREEN_SIZE_X>SCREEN_SIZE_Y?SCREEN_SIZE_Y:SCREEN_SIZE_X)/SIZE;
+  int offset_x = SCREEN_SIZE_X > SCREEN_SIZE_Y ? SCREEN_SIZE_X - SCREEN_SIZE_Y;
+  int offset_y = SCREEN_SIZE_X < SCREEN_SIZE_Y ? SCREEN_SIZE_Y - SCREEN_SIZE_X;
+
+  clrScr();                 // TODO - not sure about the arduino API
+  printNumI(score, 4, 4); // TODO - not sure about the arduino API
+
   for(int i=0; i<SIZE; ++i) {
     for(int j=0; j<SIZE; ++j) {
       if(map[j][i] == POINT)     // point
-        // TODO draw point
+        setColor(63, 180, 200);  //   TODO - not sure about the arduino API
       else if(map[j][i] == WALL) // wall
-        // TODO draw wall
+        setColor(10, 20, 255);   //   TODO - not sure about the arduino API
       else if(map[j][i] > 0)     // player
-        // TODO draw player
+        setColor(255, 255, 255); //   TODO - not sure about the arduino API
+      fillRect(i*windth + offset_x, j*width+offset_y, width, width);
     }
   }
-  // TODO maybe draw the player score?
 }
 
 void main_loop(char **map, Player& p) {
   do {
-    display(map);
+    display(map, p.score);
     process_input(p);
     delay(DELAY_TIME); // TODO - not sure about the arduino API
   } while(move(map, p));
