@@ -36,7 +36,18 @@ void start_snake() {
 // displays the map
 //   returns false on game over
 void display(char **map) {
-  // TODO display map
+  clearDisplay(); // TODO - not sure about the arduino API
+  for(int i=0; i<SIZE; ++i) {
+    for(int j=0; j<SIZE; ++j) {
+      if(map[j][i] == POINT)     // point
+        // TODO draw point
+      else if(map[j][i] == WALL) // wall
+        // TODO draw wall
+      else if(map[j][i] > 0)     // player
+        // TODO draw player
+    }
+  }
+  // TODO maybe draw the player score?
 }
 
 void main_loop(char **map, Player& p) {
