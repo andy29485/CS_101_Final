@@ -40,8 +40,9 @@ void display(char **map, const int& score) {
   int offset_x = SCREEN_SIZE_X > SCREEN_SIZE_Y ? SCREEN_SIZE_X - SCREEN_SIZE_Y;
   int offset_y = SCREEN_SIZE_X < SCREEN_SIZE_Y ? SCREEN_SIZE_Y - SCREEN_SIZE_X;
 
-  clrScr();                 // TODO - not sure about the arduino API
+  clrScr();               // TODO - not sure about the arduino API
   printNumI(score, 4, 4); // TODO - not sure about the arduino API
+
 
   for(int i=0; i<SIZE; ++i) {
     for(int j=0; j<SIZE; ++j) {
@@ -65,6 +66,9 @@ void main_loop(char **map, Player& p) {
 }
 
 bool move(char **map, Player& p) {
+  int nPoints  = 0;
+  int x, y;
+
   // move to next space
   switch(p.dir) {
     case LEFT:
@@ -94,10 +98,23 @@ bool move(char **map, Player& p) {
     for(int j=0; j<SIZE; ++j) {
       if(map[j][i] > 0)
         ++map[j][i];
+      else if(map[j][i] == POINT)
+        ++nPoins;
       if(map[j][i] > p.score+4)
         map[j][i] = 0;
     }
   }
+
+  // Put poins on the field if none are there
+  while(!nPoints) {
+    x = random() % (SIZE-2) + 1; // account for outer walls
+    y = random() % (SIZE-2) + 1;
+    if (map[x][y] == 0) {
+      map[x][y] = POINT;
+      ++nPoints;
+    }
+  }
+
   // set the head of the player to their current location
   map[p.y][p.x] = 1;
   return true;
