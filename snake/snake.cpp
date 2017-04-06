@@ -90,7 +90,7 @@ bool move(char **map, Player& p) {
     ++p.score;
   }
   else if(map[p.y][p.x] != 0) {  // crash
-    return false
+    return false;
   }
 
   // update the map - "move the player"
@@ -131,16 +131,16 @@ void process_input(Player& p) {
     if(500 - x > y) { // TOP
       p.dir = UP;
     }
-    else {            // LEFT
-      p.dir = LEFT;
+    else {            // RIGHT
+      p.dir = RIGHT;
     }
   }
   else { // bottom left
     if(500 - x > y) { // BOTTOM
       p.dir = DOWN;
     }
-    else {            // RIGHT
-      p.dir = RIGHT;
+    else {            // LEFT
+      p.dir = LEFT;
     }
   }
 }
