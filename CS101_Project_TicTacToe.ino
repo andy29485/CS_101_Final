@@ -51,7 +51,7 @@ void TicTacToe() {
   for (i = 0; i < 9; i++) {
     // If it is Player 1's turn...
     if (turn == 1) {
-        // Display that is is Player 1's turn (fillRect is used to cover over previous label after each turn so that the entire scene does not need to be redrawn)
+        // Display that it is Player 1's turn (fillRect is used to cover over previous label after each turn so that the entire scene does not need to be redrawn)
         tft.fillRect(25, 270, 110, 20, ILI9341_BLACK);
         tft.setCursor(30,280);
         tft.setTextSize(1);
