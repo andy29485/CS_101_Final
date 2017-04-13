@@ -41,7 +41,7 @@ void loop() {
 }
 
 void TicTacToe() {
-  int board[9] = { 0 }; // Board has postions from 0-9, with the top left corner at 0, top middle at 1, top right at 2, and so on
+  int board[9] = { 0 }; // Board has postions from 0-8, with the top left corner at 0, top middle at 1, top right at 2, and so on
   int i, position, turn, winner; // i: counts number of turns, position: one of 9 possible positions on the board, turn: 1 for Player 1, 2 for Player 2, winner: 1 for Player 1, 2 for Player 2 
   
   drawBoard();
