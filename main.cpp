@@ -1,161 +1,190 @@
 #include <iostream>
 #include <cstdlib>
+#include "windows.h"
 #include <conio.h>
 
-#include "windows.h"
+/*#include "SPI.h"
+#include "Adafruit_GFX.h"
+#include "Adafruit_ILI9341.h"
+#include "Adafruit_FT6206.h"
+
+#define TFT_DC 9
+#define TFT_CS 10
+*/
 
 using namespace std;
 
-bool gameOver;
 
-const int width=20;
-const int height=20;
-int x,y;//head position
-int fruitX,fruitY,score;
-enum eDirection{STOP=0,LEFT,RIGHT,UP,DOWN};//snake direction controls
-eDirection dir;
-int tailX[100], tailY[100];
-int nTail;
+bool gameOver;//if true then the game ends, if false then the game continues
 
+const int width=30;//width of the screen
+const int height=20;//height of the screen
+int score;
+int birdX,birdY;//The Bird's X and Y position
+int pipesOneX,pipesOneY,pipesTwoX,pipesTwoY;//the first 2 pipes' X and Y positions
+int pipes3X,pipes3Y,pipes4X,pipes4Y;//the last 2 pipes' X and Y positions
+enum pipeDir{LEFT};//Makes the pipes constantly move left
+enum birdDir{UP,DOWN};//moves the direction down when no button pressed and up when 'w' pressed
+pipeDir pipe;
+birdDir bird;
 
 void Setup()
 {
-    gameOver=false;
-    dir=STOP;
-    x=width/2;//place head in mid of screen
-    y=height/2;//place head in mid of screen
-    fruitX=rand()%width;
-    fruitY=rand()%height;
     score=0;
+    gameOver=false;
+    //initial X and Y positions set for bird and all 4 pipes
+    birdX=3;
+    birdY=9;
+
+    pipesOneX=10;
+    pipesOneY=(rand()%6)+5;//it's supposed to give random numbers 5-10, This might not do this
+
+    pipesTwoX=10;
+    pipesTwoY=pipesOneY+7;
+
+
+    pipes3X=20;
+    pipes3Y=(rand()%6)+5;
+
+    pipes4X=20;
+    pipes4Y=pipes3Y+7;
 
 }
 
 void Draw()
 {
-    system("cls");//if not work "clear"
-    for(int i=0;i<width+2;i++)//did +2 to complete the rectangle
-    {
-        cout<<"U";
-    }
+
+    system("cls");
+
+    //prints the screen with the pipes '|' and the bird 'O'
+    for(int i=0;i<width+1;i++)//did +2 to complete the rectangle
+        cout<<"_";
     cout<<endl;
+
    for(int i=0;i<height;i++)
    {
 
        for(int j=0;j<width;j++)
        {
             if(j==0)
-            {
-                cout<<"L";
-            }
-
-            if(i==y&&j==x)
+                cout<<"|";
+            else if((i==birdY)&&(j==birdX))//prints the bird
                 cout<<"O";
-            else if((i==fruitY)&&(j==fruitX))
-                cout<<"F";
-            else
-            {
-                bool print=false;
-             for(int k=0;k<nTail;k++)
-             {
+            else if(j==pipesOneX&&i<=pipesOneY)
+                {
+                    cout<<"|";
 
-                 if(tailX[k]==j&& tailY[k]==i)
-                 {
-                     cout<<"o";
-                     print=true;
-                 }
+                }
+            else if(j==pipesTwoX&&i>=pipesTwoY)
+            {
+                cout<<"|";
+
             }
-            if(!print)
+
+            else if(j==pipes3X&&i<=pipes3Y)
+            {
+
+                cout<<"|";
+            }
+            else if(j==pipes4X&&i>=pipes4Y)
+                cout<<"|";
+
+           else
                 cout<<" ";
-        }
+
 
             if(j==width-1)
-                cout<<"R";
+                cout<<"|";
        }
        cout<<endl;
-   }
-    for(int i=0;i<width+2;i++)//did +2 to complete the rectangle
-    {
-        cout<<"D";
     }
-    cout<<endl;
-    cout<<"Score: "<<score<<endl;
+    for(int i=0;i<width+1;i++)//did +2 to complete the rectangle
+    {
+        cout<<"_";
+    }
 
+    cout<<endl;
+
+
+    cout<<"Score: "<<score<<endl;
 }
 
-void Input()
+void Input()//needs to be changed so it moves up when you tap the screen
 {
-    if(_kbhit())
+
+    if(_kbhit())//if the 'w' key is pressed then it goes up
     {
         switch(_getch())
         {
-
-        case 'a':
-            dir=LEFT;
-            break;
-        case 'd':
-            dir=RIGHT;
-            break;
         case 'w':
-            dir=UP;
-            break;
-        case 's':
-            dir=DOWN;
-            break;
-        case 'x':
-            gameOver=true;
+            bird=UP;
             break;
         }
     }
+    else//otherwise the bird goes down
+        bird=DOWN;
 
 }
 
 void Logic()
 {
-    int prevX=tailX[0];
-    int prevY=tailY[0];
-    int prev2X,prev2Y;
-    tailX[0]=x;
-    tailY[0]=y;
-    for(int i=1;i<nTail;i++)
-    {
-        prev2X=tailX[i];
-        prev2Y=tailY[i];
-        tailX[i]=prevX;
-        tailY[i]=prevY;
-        prevX=prev2X;
-        prevY=prev2Y;
-    }
 
-    switch(dir)
+
+    switch(bird)
     {
-    case LEFT:
-        x--;
-        break;
-    case RIGHT:
-        x++;
-        break;
+
     case UP:
-        y--;
+        birdY=birdY-4;//makes bird jump up 4
         break;
     case DOWN:
-        y++;
-        break;
-
-    default:
-        break;
+        birdY++;//makes bird move down
     }
 
-    if(x>width||x<0||y>height||y<0)
-        gameOver=true;
-    else if((x==fruitX)&&(y=fruitY))
+    switch(pipe)
     {
-        score+=10;
-        fruitX=rand()%width;
-        fruitY=rand()%height;
-        nTail++;
+    case LEFT:
+        //moves all the pipes left
+        pipesOneX--;
+        pipesTwoX--;
+        pipes3X--;
+        pipes4X--;
+        break;
+    }
+    if(birdY>height||birdY<0)//ends game if bird flies hits the ceiling and if bird hits the ground, not sure if this is a rule
+                            //or not
+        gameOver=true;
+
+    if(((birdX==pipesOneX)&&(birdY<=pipesOneY))||((birdX==pipesTwoX)&&(birdY>=pipesTwoY))||((birdX==pipes3X)&&(birdY<=pipes3Y))||((birdX==pipes4X)&&(birdY>=pipes4Y)))//if bird touches a wall, ends game
+        gameOver=true;
+
+    if(pipesOneX==0)//when the wall reaches the end of the screen, this creates a new wall
+    {
+        pipesOneX=29;
+        pipesOneY=(rand()%6)+5;
     }
 
+    if(pipesTwoX==0)// when this wall reaches the end of the screen. this creates a new wall
+    {
+        pipesTwoX=29;
+        pipesTwoY=pipesOneY+7;
+    }
+
+    if(pipes3X==0)// when this wall reaches the end, a new wall is created
+    {
+        pipes3X=29;
+        pipes3Y=(rand()%6)+5;
+    }
+
+    if(pipes4X==0)//when this wall reaches the end, a new wall is created
+    {
+        pipes4X=29;
+        pipes4Y=pipes3Y+7;
+    }
+
+    score++;//score is incremented
 }
+
+
 int main()
 {
     Setup();
@@ -166,8 +195,9 @@ int main()
         Input();
         Logic();
         Sleep(100);
-    }
 
+    }
 
     return 0;
 }
+
