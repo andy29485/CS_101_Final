@@ -320,6 +320,11 @@ void Snake() {
   Player p;
 
   // put walls around the border
+  for(int j=0; j<SNAKE_SIZE; ++j) {
+    for(int i=0; i<SNAKE_SIZE; ++i) {
+      snake_map[j][i] = 0;
+    }
+  }
   for(int i=0; i<SNAKE_SIZE; ++i) {
     snake_map[         0][         i] = SNAKE_WALL;
     snake_map[SNAKE_SIZE][         i] = SNAKE_WALL;
@@ -328,7 +333,8 @@ void Snake() {
   }
 
   // put the player on the map
-  p.x = p.y = SNAKE_SIZE/2;
+  p.x = SNAKE_SIZE/2;
+  p.y = SNAKE_SIZE/2;
   p.score = 0;
   snake_map[p.y][p.x] = 1;
 
@@ -354,8 +360,6 @@ void snake_main_loop(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
 // displays the map
 //   returns false on game over
 void snake_display(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], const int& score){
-  const int SCREEN_SIZE_X 240; // TODO this value may need testing
-  const int SCREEN_SIZE_Y 320;
   boolean x_longer = SCREEN_SIZE_X > SCREEN_SIZE_Y;
   int     width    = (x_longer ? SCREEN_SIZE_Y : SCREEN_SIZE_X)/SNAKE_SIZE;
   int     offset_x =  x_longer ? SCREEN_SIZE_X-SCREEN_SIZE_Y : 0;
