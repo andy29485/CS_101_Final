@@ -335,7 +335,7 @@ void Snake() {
   snake_main_loop(snake_map, p);
 }
 
-void snake_main_loop(char **snake_map, Player& p) {
+void snake_main_loop(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
   do {
     snake_display(snake_map, p.score);
     snake_process_input(p);
@@ -352,7 +352,7 @@ void snake_main_loop(char **snake_map, Player& p) {
 
 // displays the map
 //   returns false on game over
-void snake_display(char **snake_map, const int& score) {
+void snake_display(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], const int& score) {
   const int SCREEN_SIZE_X 240; // TODO this value may need testing
   const int SCREEN_SIZE_Y 320;
   int width    = (SCREEN_SIZE_X>SCREEN_SIZE_Y?SCREEN_SIZE_Y:SCREEN_SIZE_X)/SNAKE_SIZE;
@@ -364,7 +364,8 @@ void snake_display(char **snake_map, const int& score) {
   tft.setCursor(30,150);
   tft.setTextColor(ILI9341_WHITE);
   tft.setTextSize(2);
-  tft.print("Score: %4d", score);
+  tft.print("Score:  ");
+  tft.print(score);
   delay(2000);
   //tft.printNumI(score, 4, 4);   // TODO - not sure about the arduino API
 
@@ -381,7 +382,7 @@ void snake_display(char **snake_map, const int& score) {
   }
 }
 
-bool snake_move(char **snake_map, Player& p) {
+bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
   int nPoints  = 0;
   int x, y;
 
@@ -415,7 +416,7 @@ bool snake_move(char **snake_map, Player& p) {
       if(snake_map[j][i] > 0)
         ++snake_map[j][i];
       else if(snake_map[j][i] == SNAKE_POINT)
-        ++nPoins;
+        ++nPoints;
       if(snake_map[j][i] > p.score+4)
         snake_map[j][i] = 0;
     }
