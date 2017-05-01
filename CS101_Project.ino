@@ -6,8 +6,28 @@
 #define TFT_DC 9
 #define TFT_CS 10
 
+#define SNAKE_SIZE     12;
+#define SNAKE_POINT    -1;
+#define SNAKE_WALL     -2;
+#define SCREEN_SIZE_X 240;
+#define SCREEN_SIZE_Y 320;
+
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 Adafruit_FT6206 ts = Adafruit_FT6206();
+
+enum Direction {
+  LEFT,
+  UP,
+  RIGHT,
+  DOWN
+};
+
+typedef struct {
+  int       x;
+  int       y;
+  int       score;
+  Direction dir;
+} Player;
 
 void setup() {
   tft.begin();
@@ -43,22 +63,22 @@ void setup() {
 void loop() {
     int touch = 0, choice = 0;
     drawMenu();
-    
+
     while (touch == 0) {
       if (ts.touched()) {
         TS_Point p = ts.getPoint();
         p.x = map(p.x, 0, 240, 240, 0);
         p.y = map(p.y, 0, 320, 320, 0);
-        
+
         if (p.x >= 30 && p.x < 210 && p.y >= 80 && p.y < 130)
           choice = 0;
         else if (p.x >= 30 && p.x < 210 && p.y >= 140 && p.y < 190)
           choice = 1;
-        else if (p.x >= 30 && p.x < 210 && p.y >= 200 && p.y < 250) 
+        else if (p.x >= 30 && p.x < 210 && p.y >= 200 && p.y < 250)
           choice = 2;
-        else if (p.x >= 30 && p.x < 210 && p.y >= 260 && p.y < 310) 
+        else if (p.x >= 30 && p.x < 210 && p.y >= 260 && p.y < 310)
           choice = 3;
-        
+
         touch = 1;
         delay(500);
       }
@@ -82,23 +102,23 @@ void drawMenu() {
       tft.setTextColor(ILI9341_BLACK);
       tft.fillRect(25, 80, 190, 50, ILI9341_WHITE);
       tft.setCursor(55,100);
-      tft.print("Tic Tac Toe");      
+      tft.print("Tic Tac Toe");
       tft.fillRect(25, 140, 190, 50, ILI9341_WHITE);
       tft.setCursor(85,160);
-      tft.print("Snake"); 
+      tft.print("Snake");
       tft.fillRect(25, 200, 190, 50, ILI9341_WHITE);
       tft.setCursor(55,220);
-      tft.print("Flappy Bird"); 
+      tft.print("Flappy Bird");
       tft.fillRect(25, 260, 190, 50, ILI9341_WHITE);
       tft.setCursor(40,280);
-      tft.print("Space Invaders"); 
+      tft.print("Space Invaders");
 }
 
 void TicTacToe() {
   int board[9] = { 0 };
   int i, position, turn, winner;
   boolean compPlayer = false;
-  
+
   drawBoard();
   turn = 1;
 
@@ -108,7 +128,7 @@ void TicTacToe() {
         tft.setCursor(30,280);
         tft.setTextSize(1);
         tft.print("Player 1's turn");
-        
+
         do {
         position = getInput();
         } while (board[position] != 0);
@@ -121,7 +141,7 @@ void TicTacToe() {
         tft.setCursor(30,280);
         tft.setTextSize(1);
         tft.print("Player 2's turn");
-        
+
         do {
           if (compPlayer) {
             position = random() % 9;
@@ -152,9 +172,9 @@ void TicTacToe() {
         tft.setCursor(30,150);
         tft.setTextColor(ILI9341_WHITE);
         tft.setTextSize(2);
-        tft.print("Player 2 Wins!"); 
+        tft.print("Player 2 Wins!");
         delay(2000);
-        break;            
+        break;
     }
 
     if (turn == 1)
@@ -167,8 +187,8 @@ void TicTacToe() {
         tft.setCursor(30,150);
         tft.setTextColor(ILI9341_WHITE);
         tft.setTextSize(2);
-        tft.print("It's a tie!"); 
-        delay(2000);  
+        tft.print("It's a tie!");
+        delay(2000);
     }
 }
 
@@ -180,27 +200,27 @@ int getInput() {
       TS_Point p = ts.getPoint();
       p.x = map(p.x, 0, 240, 240, 0);
       p.y = map(p.y, 0, 320, 320, 0);
-      
+
       // Glitch where position 0 is triggered by touching the bottom of the screen
       if (p.x >= 30 && p.x < 90 && p.y >= 60 && p.y < 120)
         position = 0;
       else if (p.x >= 90 && p.x < 150 && p.y >= 60 && p.y < 120)
         position = 1;
-      else if (p.x >= 150 && p.x < 210 && p.y >= 60 && p.y < 120) 
+      else if (p.x >= 150 && p.x < 210 && p.y >= 60 && p.y < 120)
         position = 2;
-      else if (p.x >= 30 && p.x < 90 && p.y >= 120 && p.y < 180) 
+      else if (p.x >= 30 && p.x < 90 && p.y >= 120 && p.y < 180)
         position = 3;
-      else if (p.x >= 90 && p.x < 150 && p.y >= 120 && p.y < 180) 
+      else if (p.x >= 90 && p.x < 150 && p.y >= 120 && p.y < 180)
         position = 4;
-      else if (p.x >= 150 && p.x < 210 && p.y >= 120 && p.y < 180) 
+      else if (p.x >= 150 && p.x < 210 && p.y >= 120 && p.y < 180)
         position = 5;
-      else if (p.x >= 30 && p.x < 90 && p.y >= 180 && p.y < 240) 
+      else if (p.x >= 30 && p.x < 90 && p.y >= 180 && p.y < 240)
         position = 6;
-      else if (p.x >= 90 && p.x < 150 && p.y >= 180 && p.y < 240) 
+      else if (p.x >= 90 && p.x < 150 && p.y >= 180 && p.y < 240)
         position = 7;
       else if (p.x >= 150 && p.x < 210 && p.y >= 180 && p.y < 240)
         position = 8;
-      
+
       touch = 1;
     }
   }
@@ -209,12 +229,12 @@ int getInput() {
 
 void drawBoard() {
   tft.fillScreen(ILI9341_BLACK);
-  
+
   tft.setCursor(60,20);
   tft.setTextColor(ILI9341_WHITE);
   tft.setTextSize(2);
   tft.print("Tic Tac Toe");
-  
+
   tft.drawLine(90,60,90,240,ILI9341_WHITE);
   tft.drawLine(150,60,150,240,ILI9341_WHITE);
   tft.drawLine(30,120,210,120,ILI9341_WHITE);
@@ -289,152 +309,81 @@ int winConditions(int board[]) {
   if (board[0] == 2 && board[4] == 2 && board[8] == 2)
     winner = 2;
   if (board[2] == 2 && board[4] == 2 && board[6] == 2)
-    winner = 2;  
+    winner = 2;
 
    return winner;
 }
 
 void Snake() {
-      int x = 120, y = 160;
-      boolean play = true, left = false, right = false, up = false, down = false;
-      
-      while (play) {
-              tft.fillScreen(ILI9341_BLACK);
-              tft.fillRect(x, y, 10, 10, ILI9341_GREEN);
-
-              if (up)
-                y+=5;
-              if (down)
-                y-=5;
-              if (left)
-                x-=5;
-              if (right)
-                x+=5;
-
-              delay(50);
-
-              if (x <= 0 || y <= 0 || x >= 230 || y >= 310)
-                play = false;
-              
-              if (ts.touched()) {
-                TS_Point p = ts.getPoint();
-                p.x = map(p.x, 0, 240, 240, 0);
-                p.y = map(p.y, 0, 320, 320, 0);
-          
-                if(p.y <= 90) { 
-                  up = false;
-                  down = true;
-                  left = false;
-                  right = false;
-                }
-                if (p.y >= 230) {
-                  up = true;
-                  down = false;
-                  left = false;
-                  right = false;
-                }
-                if (p.y > 50 && p.y < 270 && p.x > 0 && p.x <= 120) {
-                  up = false;
-                  down = false;
-                  left = true;
-                  right = false;
-                }
-                if(p.y > 50 && p.y < 270 && p.x > 120 && p.x <= 240) {
-                  up = false;
-                  down = false;
-                  left = false;
-                  right = true;
-                }
-                delay(100);
-              }
-      }
-        tft.fillScreen(ILI9341_BLACK);
-        tft.setCursor(30,150);
-        tft.setTextColor(ILI9341_WHITE);
-        tft.setTextSize(2);
-        tft.print("Game over!"); 
-        delay(2000);
-      
-        
-}
-
-void FlappyBird() {
-      tft.fillScreen(ILI9341_BLACK);
-      tft.setTextColor(ILI9341_WHITE);
-      tft.setTextSize(1);
-      tft.setCursor(30,30);
-      tft.print("Flappy Bird goes here");
-      delay(2000);
-}
-
-void SpaceInvaders() {
-      tft.fillScreen(ILI9341_BLACK);
-      tft.setTextColor(ILI9341_WHITE);
-      tft.setTextSize(1);
-      tft.setCursor(30,30);
-      tft.print("Space Invaders goes here");
-      delay(2000);  
-}
-
-
-/*
-void start_snake() {
   // create map and player
-  char map[SIZE][SIZE]; //only need char b/c value range will be -2 - +100
+  char map[SNAKE_SIZE][SNAKE_SIZE];
   Player p;
 
   // put walls around the border
-  for(int i=0; i<SIZE; ++i) {
-    map[   0][   i] = WALL;
-    map[SIZE][   i] = WALL;
-    map[   i][SIZE] = WALL;
-    map[   i][   0] = WALL;
+  for(int i=0; i<SNAKE_SIZE; ++i) {
+    map[         0][         i] = SNAKE_WALL;
+    map[SNAKE_SIZE][         i] = SNAKE_WALL;
+    map[         i][SNAKE_SIZE] = SNAKE_WALL;
+    map[         i][         0] = SNAKE_WALL;
   }
 
   // put the player on the map
-  p.x = p.y = SIZE/2;
+  p.x = p.y = SNAKE_SIZE/2;
   map[p.y][p.x] = 1;
 
   // start loop
-  main_loop(map, p);
+  snake_main_loop(map, p);
+}
+
+void snake_main_loop(char **map, Player& p) {
+  do {
+    snake_display(map, p.score);
+    snake_process_input(p);
+    delay(50); // TODO - not sure about the arduino API
+  } while(snake_move(map, p));
+
+  tft.fillScreen(ILI9341_BLACK);
+  tft.setCursor(30,150);
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setTextSize(2);
+  tft.print("Game over!");
+  delay(2000);
 }
 
 // displays the map
-// returns false on game over
-void display(char (*map)[12], const int& score) {
-  int width    = (SCREEN_SIZE_X>SCREEN_SIZE_Y?SCREEN_SIZE_Y:SCREEN_SIZE_X)/SIZE;
+//   returns false on game over
+void snake_display(char **map, const int& score) {
+  const int SCREEN_SIZE_X 240; // TODO this value may need testing
+  const int SCREEN_SIZE_Y 320;
+  int width    = (SCREEN_SIZE_X>SCREEN_SIZE_Y?SCREEN_SIZE_Y:SCREEN_SIZE_X)/SNAKE_SIZE;
   int offset_x = SCREEN_SIZE_X > SCREEN_SIZE_Y ? SCREEN_SIZE_X - SCREEN_SIZE_Y;
   int offset_y = SCREEN_SIZE_X < SCREEN_SIZE_Y ? SCREEN_SIZE_Y - SCREEN_SIZE_X;
+  int colour   = ILI9341_GREEN;
 
-  clrScr();               // TODO - not sure about the arduino API
-  printNumI(score, 4, 4); // TODO - not sure about the arduino API
+  tft.fillScreen(ILI9341_BLACK);  // TODO - not sure about the arduino API
+  tft.setCursor(30,150);
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setTextSize(2);
+  tft.print("Score: %4d", score);
+  delay(2000);
+  //tft.printNumI(score, 4, 4);   // TODO - not sure about the arduino API
 
-
-  for(int i=0; i<SIZE; ++i) {
-    for(int j=0; j<SIZE; ++j) {
-      if(map[j][i] == POINT)     // point
-        setColor(63, 180, 200);  //   TODO - not sure about the arduino API
-      else if(map[j][i] == WALL) // wall
-        setColor(10, 20, 255);   //   TODO - not sure about the arduino API
-      else if(map[j][i] > 0)     // player
-        setColor(255, 255, 255); //   TODO - not sure about the arduino API
-      tft.fillRect(i*width + offset_x, j*width+offset_y, width, width, );
+  for(int i=0; i<SNAKE_SIZE; ++i) {
+    for(int j=0; j<SNAKE_SIZE; ++j) {
+      if(map[j][i] == SNAKE_POINT)      // point
+        colour = ILI9341_RED;    //   TODO - not sure about the arduino API
+      else if(map[j][i] == SNAKE_WALL) // wall
+        colour = ILI9341_BLUE;   //   TODO - not sure about the arduino API
+      else if(map[j][i] > 0)   // player
+        colour = ILI9341_GREEN;  //   TODO - not sure about the arduino API
+      tft.fillRect(i*width+offset_x, j*width+offset_y, width, width, colour);
     }
   }
 }
 
-void main_loop(char (*map)[12], Player& p) {
-  do {
-    display(map, p.score);
-    process_input(p);
-    delay(50);
-  } while(move(map, p));
-}
-
-bool move(char (*map)[12], Player& p) {
+bool snake_move(char **map, Player& p) {
   int nPoints  = 0;
   int x, y;
-  tft.drawPixel(x, y, ILI9341_GREEN);
 
   // move to next space
   switch(p.dir) {
@@ -453,7 +402,7 @@ bool move(char (*map)[12], Player& p) {
   }
 
   // perform checks for special conditions
-  if(map[p.y][p.x] == POINT) {   // point get
+  if(map[p.y][p.x] == SNAKE_POINT) {   // point get
     ++p.score;
   }
   else if(map[p.y][p.x] != 0) {  // crash
@@ -461,12 +410,12 @@ bool move(char (*map)[12], Player& p) {
   }
 
   // update the map - "move the player"
-  for(int i=0; i<SIZE; ++i) {
-    for(int j=0; j<SIZE; ++j) {
+  for(int i=0; i<SNAKE_SIZE; ++i) {
+    for(int j=0; j<SNAKE_SIZE; ++j) {
       if(map[j][i] > 0)
         ++map[j][i];
-      else if(map[j][i] == POINT)
-        ++nPoints;
+      else if(map[j][i] == SNAKE_POINT)
+        ++nPoins;
       if(map[j][i] > p.score+4)
         map[j][i] = 0;
     }
@@ -474,10 +423,10 @@ bool move(char (*map)[12], Player& p) {
 
   // Put poins on the field if none are there
   while(!nPoints) {
-    x = random() % (SIZE-2) + 1; // account for outer walls
-    y = random() % (SIZE-2) + 1;
+    x = random() % (SNAKE_SIZE-2) + 1; // account for outer walls
+    y = random() % (SNAKE_SIZE-2) + 1;
     if (map[x][y] == 0) {
-      map[x][y] = POINT;
+      map[x][y] = SNAKE_POINT;
       ++nPoints;
     }
   }
@@ -487,18 +436,46 @@ bool move(char (*map)[12], Player& p) {
   return true;
 }
 
-void process_input(Player& p) {  
-  TS_Point point = ts.getPoint();
-  point.x = map(p.x, 0, 240, 240, 0);
-  point.y = map(p.y, 0, 320, 320, 0);
+void snake_process_input(Player& player) {
+  if (ts.touched()) {
+    TS_Point p = ts.getPoint();
+    p.x = map(p.x, 0, 240, 500, 0);
+    p.y = map(p.y, 0, 320, 500, 0);
 
-    if(p.y <= 90) 
-      p.dir = UP;
-    else if (p.y >= 230)
-      p.dir = DOWN;
-    else if (p.y > 90 && p.y < 230 && p.x > 0 && p.x <= 120)
-      p.dir = LEFT;
-    else if(p.y > 90 && p.y < 230 && p.x > 120 && p.x <= 240)
-      p.dir = RIGHT;
+    // split the screen up into an x and check for inputs on each size of it
+    if(p.x > p.y) {   // top right
+      if(500 - p.x > p.y) { // TOP
+        player.dir = UP;
+      }
+      else {            // RIGHT
+        player.dir = RIGHT;
+      }
+    }
+    else { // bottom left
+      if(500 - p.x > p.y) { // BOTTOM
+        player.dir = DOWN;
+      }
+      else {            // LEFT
+        player.dir = LEFT;
+      }
+    }
   }
-*/
+}
+
+void FlappyBird() {
+      tft.fillScreen(ILI9341_BLACK);
+      tft.setTextColor(ILI9341_WHITE);
+      tft.setTextSize(1);
+      tft.setCursor(30,30);
+      tft.print("Flappy Bird goes here");
+      delay(2000);
+}
+
+void SpaceInvaders() {
+      tft.fillScreen(ILI9341_BLACK);
+      tft.setTextColor(ILI9341_WHITE);
+      tft.setTextSize(1);
+      tft.setCursor(30,30);
+      tft.print("Space Invaders goes here");
+      delay(2000);
+}
