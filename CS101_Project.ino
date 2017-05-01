@@ -346,7 +346,7 @@ void snake_main_loop(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
   snake_display(snake_map, p.score);
   do {
     snake_process_input(p);
-    delay(10); // TODO - not sure about the arduino API
+    delay(60); // TODO - not sure about the arduino API
   } while(snake_move(snake_map, p));
 
   tft.fillScreen(ILI9341_BLACK);
@@ -359,9 +359,7 @@ void snake_main_loop(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
 
 // displays the map
 //   returns false on game over
-void snake_display(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE],
-                   const int& score,
-){
+void snake_display(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], const int& score) {
   boolean x_longer = SCREEN_SIZE_X > SCREEN_SIZE_Y;
   int     width    = (x_longer ? SCREEN_SIZE_Y : SCREEN_SIZE_X)/SNAKE_SIZE;
   int     offset_x =  x_longer ? SCREEN_SIZE_X-SCREEN_SIZE_Y : 0;
@@ -470,25 +468,22 @@ bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
 void snake_process_input(Player& player) {
   if (ts.touched()) {
     TS_Point p = ts.getPoint();
-    p.x = map(p.x, 0, 240, 240, 0) * 500 / 240;
-    p.y = map(p.y, 0, 320, 320, 0) * 500 / 320;
+    p.x = map(p.x, 0, 240, 240, 0);
+    p.y = map(p.y, 0, 320, 320, 0);
 
     // split the screen up into an x and check for inputs on each size of it
-    if(p.x > p.y) {   // top right
-      if(500 - p.x > p.y) { // TOP
-        player.dir = UP;
-      }
-      else {            // RIGHT
-        player.dir = RIGHT;
-      }
+
+    if(p.y <= 90) {
+      p.dir = DOWN;
     }
-    else { // bottom left
-      if(500 - p.x > p.y) { // BOTTOM
-        player.dir = DOWN;
-      }
-      else {            // LEFT
-        player.dir = LEFT;
-      }
+    if (p.y >= 230) {
+      p.dir = UP;
+    }
+    if (p.y > 50 && p.y < 270 && p.x > 0 && p.x <= 120) {
+      p.dir = LEFT;
+    }
+    if(p.y > 50 && p.y < 270 && p.x > 120 && p.x <= 240) {
+      p.dir = RIGHT;
     }
   }
 }
