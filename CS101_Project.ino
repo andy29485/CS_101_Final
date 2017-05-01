@@ -6,7 +6,7 @@
 #define TFT_DC 9
 #define TFT_CS 10
 
-#define SNAKE_SIZE     12
+#define SNAKE_SIZE     18
 #define SNAKE_POINT    -1
 #define SNAKE_WALL     -2
 #define SCREEN_SIZE_X 240
@@ -329,6 +329,7 @@ void Snake() {
 
   // put the player on the map
   p.x = p.y = SNAKE_SIZE/2;
+  p.score = 0;
   snake_map[p.y][p.x] = 1;
 
   // start loop
@@ -352,18 +353,19 @@ void snake_main_loop(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
 
 // displays the map
 //   returns false on game over
-void snake_display(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], const int& score) {
+void snake_display(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], const int& score){
   const int SCREEN_SIZE_X 240; // TODO this value may need testing
   const int SCREEN_SIZE_Y 320;
-  int width    = (SCREEN_SIZE_X>SCREEN_SIZE_Y?SCREEN_SIZE_Y:SCREEN_SIZE_X)/SNAKE_SIZE;
-  int offset_x = SCREEN_SIZE_X > SCREEN_SIZE_Y ? SCREEN_SIZE_X - SCREEN_SIZE_Y;
-  int offset_y = SCREEN_SIZE_X < SCREEN_SIZE_Y ? SCREEN_SIZE_Y - SCREEN_SIZE_X;
-  int colour   = ILI9341_GREEN;
+  boolean x_longer = SCREEN_SIZE_X > SCREEN_SIZE_Y;
+  int     width    = (x_longer ? SCREEN_SIZE_Y : SCREEN_SIZE_X)/SNAKE_SIZE;
+  int     offset_x =  x_longer ? SCREEN_SIZE_X-SCREEN_SIZE_Y : 0;
+  int     offset_y = !x_longer ? SCREEN_SIZE_Y-SCREEN_SIZE_X : 0;
+  int     colour   = ILI9341_GREEN;
 
   tft.fillScreen(ILI9341_BLACK);  // TODO - not sure about the arduino API
-  tft.setCursor(30,150);
+  tft.setCursor(10, 5);
   tft.setTextColor(ILI9341_WHITE);
-  tft.setTextSize(2);
+  tft.setTextSize(1);
   tft.print("Score:  ");
   tft.print(score);
   delay(2000);
@@ -371,13 +373,23 @@ void snake_display(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], const int& score) 
 
   for(int i=0; i<SNAKE_SIZE; ++i) {
     for(int j=0; j<SNAKE_SIZE; ++j) {
-      if(snake_map[j][i] == SNAKE_POINT)      // point
-        colour = ILI9341_RED;    //   TODO - not sure about the arduino API
-      else if(snake_map[j][i] == SNAKE_WALL) // wall
-        colour = ILI9341_BLUE;   //   TODO - not sure about the arduino API
-      else if(snake_map[j][i] > 0)   // player
-        colour = ILI9341_GREEN;  //   TODO - not sure about the arduino API
-      tft.fillRect(i*width+offset_x, j*width+offset_y, width, width, colour);
+      // point
+      if(snake_map[j][i] == SNAKE_POINT)
+        colour = ILI9341_RED;
+
+      // wall
+      else if(snake_map[j][i] == SNAKE_WALL)
+        colour = ILI9341_BLUE;
+
+      // player
+      else if(snake_map[j][i] > 0)
+        colour = ILI9341_GREEN;
+
+      // nothing
+      else
+        colour = ILI9341_BLACK;
+
+      tft.fillRect(i*width+offset_x/2, j*width+offset_y/2, width,width, colour);
     }
   }
 }
