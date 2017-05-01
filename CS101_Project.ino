@@ -343,10 +343,10 @@ void Snake() {
 }
 
 void snake_main_loop(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
+  snake_display(snake_map, p.score);
   do {
-    snake_display(snake_map, p.score);
     snake_process_input(p);
-    delay(50); // TODO - not sure about the arduino API
+    delay(10); // TODO - not sure about the arduino API
   } while(snake_move(snake_map, p));
 
   tft.fillScreen(ILI9341_BLACK);
@@ -359,7 +359,9 @@ void snake_main_loop(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
 
 // displays the map
 //   returns false on game over
-void snake_display(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], const int& score){
+void snake_display(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE],
+                   const int& score,
+){
   boolean x_longer = SCREEN_SIZE_X > SCREEN_SIZE_Y;
   int     width    = (x_longer ? SCREEN_SIZE_Y : SCREEN_SIZE_X)/SNAKE_SIZE;
   int     offset_x =  x_longer ? SCREEN_SIZE_X-SCREEN_SIZE_Y : 0;
@@ -372,7 +374,6 @@ void snake_display(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], const int& score){
   tft.setTextSize(1);
   tft.print("Score:  ");
   tft.print(score);
-  delay(2000);
   //tft.printNumI(score, 4, 4);   // TODO - not sure about the arduino API
 
   for(int i=0; i<SNAKE_SIZE; ++i) {
@@ -426,6 +427,12 @@ bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
     return false;
   }
 
+  boolean x_longer = SCREEN_SIZE_X > SCREEN_SIZE_Y;
+  int     width    = (x_longer ? SCREEN_SIZE_Y : SCREEN_SIZE_X)/SNAKE_SIZE;
+  int     offset_x =  x_longer ? SCREEN_SIZE_X-SCREEN_SIZE_Y : 0;
+  int     offset_y = !x_longer ? SCREEN_SIZE_Y-SCREEN_SIZE_X : 0;
+  int     colour   = ILI9341_GREEN;
+
   // update the map - "move the player"
   for(int i=0; i<SNAKE_SIZE; ++i) {
     for(int j=0; j<SNAKE_SIZE; ++j) {
@@ -433,8 +440,11 @@ bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
         ++snake_map[j][i];
       else if(snake_map[j][i] == SNAKE_POINT)
         ++nPoints;
-      if(snake_map[j][i] > p.score+4)
+      if(snake_map[j][i] > p.score+4) {
+        colour = ILI9341_RED;
+        tft.fillRect(i*width+offset_x/2,j*width+offset_y/2,width,width,colour);
         snake_map[j][i] = 0;
+      }
     }
   }
 
@@ -442,22 +452,26 @@ bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
   while(!nPoints) {
     x = random() % (SNAKE_SIZE-2) + 1; // account for outer walls
     y = random() % (SNAKE_SIZE-2) + 1;
-    if (snake_map[x][y] == 0) {
-      snake_map[x][y] = SNAKE_POINT;
+    if (snake_map[y][x] == 0) {
+      snake_map[y][x] = SNAKE_POINT;
+      colour = ILI9341_BLACK;
+      tft.fillRect(x*width+offset_x/2,y*width+offset_y/2,width,width,colour);
       ++nPoints;
     }
   }
 
   // set the head of the player to their current location
   snake_map[p.y][p.x] = 1;
+  colour = ILI9341_GREEN;
+  tft.fillRect(i*width+offset_x/2,j*width+offset_y/2,width,width,colour);
   return true;
 }
 
 void snake_process_input(Player& player) {
   if (ts.touched()) {
     TS_Point p = ts.getPoint();
-    p.x = map(p.x, 0, 240, 500, 0);
-    p.y = map(p.y, 0, 320, 500, 0);
+    p.x = map(p.x, 0, 240, 240, 0) * 500 / 240;
+    p.y = map(p.y, 0, 320, 320, 0) * 500 / 320;
 
     // split the screen up into an x and check for inputs on each size of it
     if(p.x > p.y) {   // top right
