@@ -6,11 +6,11 @@
 #define TFT_DC 9
 #define TFT_CS 10
 
-#define SNAKE_SIZE     12;
-#define SNAKE_POINT    -1;
-#define SNAKE_WALL     -2;
-#define SCREEN_SIZE_X 240;
-#define SCREEN_SIZE_Y 320;
+#define SNAKE_SIZE     12
+#define SNAKE_POINT    -1
+#define SNAKE_WALL     -2
+#define SCREEN_SIZE_X 240
+#define SCREEN_SIZE_Y 320
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 Adafruit_FT6206 ts = Adafruit_FT6206();
@@ -316,31 +316,31 @@ int winConditions(int board[]) {
 
 void Snake() {
   // create map and player
-  char map[SNAKE_SIZE][SNAKE_SIZE];
+  char snake_map[SNAKE_SIZE][SNAKE_SIZE];
   Player p;
 
   // put walls around the border
   for(int i=0; i<SNAKE_SIZE; ++i) {
-    map[         0][         i] = SNAKE_WALL;
-    map[SNAKE_SIZE][         i] = SNAKE_WALL;
-    map[         i][SNAKE_SIZE] = SNAKE_WALL;
-    map[         i][         0] = SNAKE_WALL;
+    snake_map[         0][         i] = SNAKE_WALL;
+    snake_map[SNAKE_SIZE][         i] = SNAKE_WALL;
+    snake_map[         i][SNAKE_SIZE] = SNAKE_WALL;
+    snake_map[         i][         0] = SNAKE_WALL;
   }
 
   // put the player on the map
   p.x = p.y = SNAKE_SIZE/2;
-  map[p.y][p.x] = 1;
+  snake_map[p.y][p.x] = 1;
 
   // start loop
-  snake_main_loop(map, p);
+  snake_main_loop(snake_map, p);
 }
 
-void snake_main_loop(char **map, Player& p) {
+void snake_main_loop(char **snake_map, Player& p) {
   do {
-    snake_display(map, p.score);
+    snake_display(snake_map, p.score);
     snake_process_input(p);
     delay(50); // TODO - not sure about the arduino API
-  } while(snake_move(map, p));
+  } while(snake_move(snake_map, p));
 
   tft.fillScreen(ILI9341_BLACK);
   tft.setCursor(30,150);
@@ -352,7 +352,7 @@ void snake_main_loop(char **map, Player& p) {
 
 // displays the map
 //   returns false on game over
-void snake_display(char **map, const int& score) {
+void snake_display(char **snake_map, const int& score) {
   const int SCREEN_SIZE_X 240; // TODO this value may need testing
   const int SCREEN_SIZE_Y 320;
   int width    = (SCREEN_SIZE_X>SCREEN_SIZE_Y?SCREEN_SIZE_Y:SCREEN_SIZE_X)/SNAKE_SIZE;
@@ -370,18 +370,18 @@ void snake_display(char **map, const int& score) {
 
   for(int i=0; i<SNAKE_SIZE; ++i) {
     for(int j=0; j<SNAKE_SIZE; ++j) {
-      if(map[j][i] == SNAKE_POINT)      // point
+      if(snake_map[j][i] == SNAKE_POINT)      // point
         colour = ILI9341_RED;    //   TODO - not sure about the arduino API
-      else if(map[j][i] == SNAKE_WALL) // wall
+      else if(snake_map[j][i] == SNAKE_WALL) // wall
         colour = ILI9341_BLUE;   //   TODO - not sure about the arduino API
-      else if(map[j][i] > 0)   // player
+      else if(snake_map[j][i] > 0)   // player
         colour = ILI9341_GREEN;  //   TODO - not sure about the arduino API
       tft.fillRect(i*width+offset_x, j*width+offset_y, width, width, colour);
     }
   }
 }
 
-bool snake_move(char **map, Player& p) {
+bool snake_move(char **snake_map, Player& p) {
   int nPoints  = 0;
   int x, y;
 
@@ -402,22 +402,22 @@ bool snake_move(char **map, Player& p) {
   }
 
   // perform checks for special conditions
-  if(map[p.y][p.x] == SNAKE_POINT) {   // point get
+  if(snake_map[p.y][p.x] == SNAKE_POINT) {   // point get
     ++p.score;
   }
-  else if(map[p.y][p.x] != 0) {  // crash
+  else if(snake_map[p.y][p.x] != 0) {  // crash
     return false;
   }
 
   // update the map - "move the player"
   for(int i=0; i<SNAKE_SIZE; ++i) {
     for(int j=0; j<SNAKE_SIZE; ++j) {
-      if(map[j][i] > 0)
-        ++map[j][i];
-      else if(map[j][i] == SNAKE_POINT)
+      if(snake_map[j][i] > 0)
+        ++snake_map[j][i];
+      else if(snake_map[j][i] == SNAKE_POINT)
         ++nPoins;
-      if(map[j][i] > p.score+4)
-        map[j][i] = 0;
+      if(snake_map[j][i] > p.score+4)
+        snake_map[j][i] = 0;
     }
   }
 
@@ -425,14 +425,14 @@ bool snake_move(char **map, Player& p) {
   while(!nPoints) {
     x = random() % (SNAKE_SIZE-2) + 1; // account for outer walls
     y = random() % (SNAKE_SIZE-2) + 1;
-    if (map[x][y] == 0) {
-      map[x][y] = SNAKE_POINT;
+    if (snake_map[x][y] == 0) {
+      snake_map[x][y] = SNAKE_POINT;
       ++nPoints;
     }
   }
 
   // set the head of the player to their current location
-  map[p.y][p.x] = 1;
+  snake_map[p.y][p.x] = 1;
   return true;
 }
 
