@@ -1,12 +1,29 @@
+
 #include <iostream>
 #include <stdlib.h>
 #include <string>
 #include "windows.h"
 
+/*
+#include "SPI.h"
+#include "Adafruit_GFX.h"
+#include "Adafruit_ILI9341.h"
+#include "Adafruit_FT6206.h"
+
+#define TFT_DC 9
+#define TFT_CS 10
+*/
+
 using namespace std;
+
+const int screensizeX = 200;
+const int screensizeY = 200;
+const int shift = 2;
 
 const int sizeX = 20;
 const int sizeY = 20;
+
+const int ratio = screensizeX / sizeX;
 
 int lifepoints = 4;
 int enemyCount = 15;
@@ -18,6 +35,9 @@ char enemy = 'O';
 char spaceshipMissile = ':';
 char enemyMissile = '-';
 char space = ' ';
+
+
+
 
 bool endgame = false;
 bool gameover = false;
@@ -51,6 +71,44 @@ char GameSpace[20][20] = {
 	"..................."
 };
 
+
+void convertToPixel(int x, int y, int * pixX, int * pixY) {
+
+	*pixX = x * ratio;
+	*pixY = y * ratio;
+}
+
+void updateGameSpace(char array[sizeX][sizeY]) {
+
+	int * pixelX;
+	int * pixelY;
+
+	for (int i = 0; i < sizeX; i++) {
+		for (int j = 0; j < sizeY; j++) {
+
+			convertToPixel(i, j, pixelX, pixelY);
+
+			if(array[i][j] == ' ')
+				tft.fillRect(pixelX + shift, pixelY + shift, pixelX + ratio - shift, pixelY + ratio - shift, ILI9341_WHITE);
+			else if (array[i][j] == '.')
+				tft.fillRect(pixelX + shift, pixelY + shift, pixelX + ratio - shift, pixelY + ratio - shift, ILI9341_GREEN);
+			else if (array[i][j] == 'O')
+				tft.fillRect(pixelX + shift, pixelY + shift, pixelX + ratio - shift, pixelY + ratio - shift, ILI9341_BLACK);
+			else if (array[i][j] == '^')
+				tft.fillRect(pixelX + shift, pixelY + shift, pixelX + ratio - shift, pixelY + ratio - shift, ILI9341_BLUE);
+			else if (array[i][j] == ':')
+				tft.fillRect(pixelX + (shift + 2), pixelY + (shift + 2), pixelX + ratio - (shift + 2), pixelY + ratio - (shift + 2), ILI9341_ORANGE);
+			else if(array[i][j] = '-')
+				tft.fillRect(pixelX + (shift + 2), pixelY + (shift + 2), pixelX + ratio - (shift + 2), pixelY + ratio - (shift + 2), ILI9341_ORANGE);
+		}
+	
+	}
+		
+		tft.setCursor(screensizeX + ratio, screensizeY + ratio);
+		tft.print("Life Points: ");
+		tft.print(life);
+
+}
 
 int main() {
 
@@ -182,6 +240,10 @@ int main() {
 		}
 
 		Sleep(gamespeed);
+		
+
+		// Update game space for each arrat element
+		updateGameState(GameSpace);
 	}
 
 	// Game is finished. Prints congratulations or game over accordingly.
