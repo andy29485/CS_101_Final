@@ -34,6 +34,7 @@ char spaceship = '^';
 char enemy = 'O';
 char spaceshipMissile = ':';
 char enemyMissile = '-';
+char border = '.'
 char space = ' ';
 
 
@@ -88,17 +89,17 @@ void updateGameSpace(char array[sizeX][sizeY]) {
 
 			convertToPixel(i, j, pixelX, pixelY);
 
-			if(array[i][j] == ' ')
+			if(array[i][j] == space)
 				tft.fillRect(pixelX + shift, pixelY + shift, pixelX + ratio - shift, pixelY + ratio - shift, ILI9341_WHITE);
-			else if (array[i][j] == '.')
+			else if (array[i][j] == border)
 				tft.fillRect(pixelX + shift, pixelY + shift, pixelX + ratio - shift, pixelY + ratio - shift, ILI9341_GREEN);
-			else if (array[i][j] == 'O')
+			else if (array[i][j] == enemy)
 				tft.fillRect(pixelX + shift, pixelY + shift, pixelX + ratio - shift, pixelY + ratio - shift, ILI9341_BLACK);
-			else if (array[i][j] == '^')
+			else if (array[i][j] == spaceship)
 				tft.fillRect(pixelX + shift, pixelY + shift, pixelX + ratio - shift, pixelY + ratio - shift, ILI9341_BLUE);
-			else if (array[i][j] == ':')
+			else if (array[i][j] == spaceshipMissile)
 				tft.fillRect(pixelX + (shift + 2), pixelY + (shift + 2), pixelX + ratio - (shift + 2), pixelY + ratio - (shift + 2), ILI9341_ORANGE);
-			else if(array[i][j] = '-')
+			else if(array[i][j] = enemyMissile)
 				tft.fillRect(pixelX + (shift + 2), pixelY + (shift + 2), pixelX + ratio - (shift + 2), pixelY + ratio - (shift + 2), ILI9341_ORANGE);
 		}
 	
@@ -106,7 +107,8 @@ void updateGameSpace(char array[sizeX][sizeY]) {
 		
 		tft.setCursor(screensizeX + ratio, screensizeY + ratio);
 		tft.print("Life Points: ");
-		tft.print(life);
+		for(int i = 0; i < lifepoints; i++)
+			tft.print(life);
 
 }
 
@@ -114,6 +116,9 @@ int main() {
 
 
 	while(endgame == false) {
+		
+/*
+		THIS SECTION IS USELESSS WHEN PORTED TO ARDUINO!!!
 		
 		// Clears previous game state.
 		system("cls");
@@ -129,7 +134,7 @@ int main() {
 		for (int i = 0; i < lifepoints; i++)
 			cout << lifesymbol;
 		cout << endl;
-		
+*/		
 		// Iterate through each game state position and do updates
 		for(int posY = 0; posY < sizeY; posY++) {
 			for(int posX = 0; posX < sizeX; posX++){
@@ -243,9 +248,11 @@ int main() {
 		
 
 		// Update game space for each arrat element
-		updateGameState(GameSpace);
+		updateGameSpace(GameSpace);
 	}
-
+/*
+	THIS SECTION IS USELESS WHEN PORTED TO ARDUINO!!
+	
 	// Game is finished. Prints congratulations or game over accordingly.
 	system("cls");
 
@@ -257,5 +264,7 @@ int main() {
 	system("PAUSE");
 
 	return 0;
+*/
+
 };
 
