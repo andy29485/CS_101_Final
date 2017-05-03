@@ -6,7 +6,7 @@
 #define TFT_DC 9
 #define TFT_CS 10
 
-#define SNAKE_SIZE     30
+#define SNAKE_SIZE     15
 #define SNAKE_POINT    -1
 #define SNAKE_WALL     -2
 #define DELAY_TIME    400
