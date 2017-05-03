@@ -9,6 +9,7 @@
 #define SNAKE_SIZE     30
 #define SNAKE_POINT    -1
 #define SNAKE_WALL     -2
+#define DELAY_TIME    400
 #define SCREEN_SIZE_X 240
 #define SCREEN_SIZE_Y 320
 
@@ -425,10 +426,16 @@ void Snake() {
 
 void snake_main_loop(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
   snake_display(snake_map, p.score);
+  unsigned long curMillis = millis();
+  unsigned long oldMillis = millis();
   do {
     snake_process_input(p);
-    delay(400); // TODO - not sure about the arduino API
-  } while(snake_move(snake_map, p));
+    if(curMillis-oldMillis > DELAY_TIME) {
+      oldMillis = curMillis;
+      if(!snake_move(snake_map, p))
+        break;
+    }
+  } while(true);
 
   tft.fillScreen(ILI9341_BLACK);
   tft.setCursor(30,150);
@@ -511,7 +518,7 @@ bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
   int     width    = (x_longer ? SCREEN_SIZE_Y : SCREEN_SIZE_X)/SNAKE_SIZE;
   int     offset_x =  x_longer ? SCREEN_SIZE_X-SCREEN_SIZE_Y : 0;
   int     offset_y = !x_longer ? SCREEN_SIZE_Y-SCREEN_SIZE_X : 0;
-  int     colour   = ILI9341_GREEN;
+  int     colour   = ILI9341_BLACK;
 
   // update the map - "move the player"
   for(int i=0; i<SNAKE_SIZE; ++i) {
@@ -526,6 +533,14 @@ bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
       }
     }
   }
+
+  int colour = ILI9341_GREEN;
+  tft.fillRect(offset_x/2,width+offset_y/2,width*SNAKE_SIZE,width,colour);
+  tft.setCursor(10, 5);
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setTextSize(1);
+  tft.print("Score:  ");
+  tft.print(p.score);
 
   // Put poins on the field if none are there
   while(!nPoints) {
@@ -549,11 +564,28 @@ bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
 void snake_process_input(Player& player) {
   if (ts.touched()) {
     TS_Point p = ts.getPoint();
-    p.x = map(p.x, 0, 240, 240, 0);
-    p.y = map(p.y, 0, 320, 320, 0);
+    p.x = map(p.x, 0, 240, 0, 500);
+    p.y = map(p.y, 0, 320, 0, 500);
 
     // split the screen up into an x and check for inputs on each size of it
 
+    if(p.x > p.y) {   // top right
+      if(500 - p.x > p.y) { // TOP
+        player.dir = UP;
+      }
+      else {            // RIGHT
+        player.dir = RIGHT;
+      }
+    }
+    else { // bottom left
+      if(500 - p.x > p.y) { // BOTTOM
+        player.dir = DOWN;
+      }
+      else {            // LEFT
+        player.dir = LEFT;
+      }
+    }
+    /*
     if(p.y <= 90) {
       player.dir = DOWN;
     }
@@ -566,6 +598,7 @@ void snake_process_input(Player& player) {
     if(p.y > 50 && p.y < 270 && p.x > 120 && p.x <= 240) {
       player.dir = RIGHT;
     }
+    */
   }
 }
 
