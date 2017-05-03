@@ -181,22 +181,22 @@ void TicTacToe() {
       tft.setTextColor(ILI9341_BLACK);
       tft.fillRect(25, 140, 190, 50, ILI9341_WHITE);
       tft.setCursor(45,160);
-      tft.print("vs. AI (Easy)"); 
+      tft.print("vs. AI (Easy)");
       tft.fillRect(25, 200, 190, 50, ILI9341_WHITE);
       tft.setCursor(75,220);
-      tft.print("2 Player"); 
-  
+      tft.print("2 Player");
+
   while (touch == 0) {
       if (ts.touched()) {
         TS_Point p = ts.getPoint();
         p.x = map(p.x, 0, 240, 240, 0);
         p.y = map(p.y, 0, 320, 320, 0);
-        
+
         if (p.x >= 30 && p.x < 210 && p.y >= 140 && p.y < 190)
           compPlayer = true;
-        else if (p.x >= 30 && p.x < 210 && p.y >= 200 && p.y < 250) 
+        else if (p.x >= 30 && p.x < 210 && p.y >= 200 && p.y < 250)
           compPlayer = false;
-          
+
         touch = 1;
         delay(500);
       }
