@@ -6,7 +6,7 @@
 #define TFT_DC 9
 #define TFT_CS 10
 
-#define SNAKE_SIZE     15
+#define SNAKE_SIZE     18
 #define SNAKE_POINT    -1
 #define SNAKE_WALL     -2
 #define DELAY_TIME    400
@@ -18,9 +18,9 @@ Adafruit_FT6206 ts = Adafruit_FT6206();
 
 using namespace std;
 
-const int screensizeX = 200;
-const int screensizeY = 200;
-const int shift = 2;
+const int screensizeX = 240;
+const int screensizeY = 320;
+const int shift = 5;
 
 const int sizeX = 20;
 const int sizeY = 20;
@@ -50,8 +50,8 @@ String lose = "Game Over!";
 char GameSpace[20][20] = {
   "...................",
   ".                 .",
-  ". O O O O O O O O .",
-  ".  O O O O O O O  .",
+  ". O   O    O    O .",
+  ".   O   O    O    .",
   ".                 .",
   ".                 .",
   ".                 .",
@@ -111,6 +111,7 @@ void setup() {
   tft.setTextSize(2);
   tft.print("Version 1.0");
   delay(2000);
+  
 }
 
 void loop() {
@@ -180,22 +181,22 @@ void TicTacToe() {
       tft.setTextColor(ILI9341_BLACK);
       tft.fillRect(25, 140, 190, 50, ILI9341_WHITE);
       tft.setCursor(45,160);
-      tft.print("vs. AI (Easy)");
+      tft.print("vs. AI (Easy)"); 
       tft.fillRect(25, 200, 190, 50, ILI9341_WHITE);
       tft.setCursor(75,220);
-      tft.print("2 Player");
-
+      tft.print("2 Player"); 
+  
   while (touch == 0) {
       if (ts.touched()) {
         TS_Point p = ts.getPoint();
         p.x = map(p.x, 0, 240, 240, 0);
         p.y = map(p.y, 0, 320, 320, 0);
-
+        
         if (p.x >= 30 && p.x < 210 && p.y >= 140 && p.y < 190)
           compPlayer = true;
-        else if (p.x >= 30 && p.x < 210 && p.y >= 200 && p.y < 250)
+        else if (p.x >= 30 && p.x < 210 && p.y >= 200 && p.y < 250) 
           compPlayer = false;
-
+          
         touch = 1;
         delay(500);
       }
@@ -565,32 +566,11 @@ bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
 void snake_process_input(Player& player) {
   if (ts.touched()) {
     TS_Point p = ts.getPoint();
-    p.x = map(p.x, 0, 240, 0, 500);
-    p.y = map(p.y, 0, 320, 0, 500);
+    p.x = map(p.x, 0, 240, 240, 0);
+    p.y = map(p.y, 0, 320, 320, 0);
 
     // split the screen up into an x and check for inputs on each size of it
 
-    if(p.x > p.y) {   // top right
-      if(500 - p.x > p.y) { // TOP
-        if(player.dir != UP)
-          player.dir = DOWN;
-      }
-      else {            // RIGHT
-        if(player.dir != LEFT)
-          player.dir = RIGHT;
-      }
-    }
-    else { // bottom left
-      if(500 - p.x > p.y) {
-        if(player.dir != DOWN)
-          player.dir = UP;
-      }
-      else {
-        if(player.dir != RIGHT)
-          player.dir = LEFT;
-      }
-    }
-    /*
     if(p.y <= 90) {
       player.dir = DOWN;
     }
@@ -603,7 +583,6 @@ void snake_process_input(Player& player) {
     if(p.y > 50 && p.y < 270 && p.x > 120 && p.x <= 240) {
       player.dir = RIGHT;
     }
-    */
   }
 }
 
@@ -672,72 +651,73 @@ void convertToPixel(int x, int y, int * pixX, int * pixY) {
   *pixY = y * ratio;
 }
 
-void updateGameSpace(char array[sizeX][sizeY]) {
+//void updateGameSpace(char array[sizeX][sizeY]) {
+void updateGameSpace(char array[sizeX][sizeY], int i, int j){
 
-  int * pixelX;
-  int * pixelY;
+  int pixelX;
+  int pixelY;
 
-  for (int i = 0; i < sizeX; i++) {
-    for (int j = 0; j < sizeY; j++) {
+  //for (int i = 0; i < sizeX; i++) {
+    //for (int j = 0; j < sizeY; j++) {
 
-      convertToPixel(i, j, pixelX, pixelY);
+      //convertToPixel(i, j, &pixelX, &pixelY);
 
+      pixelX = j * ratio;
+      pixelY = i * ratio;
+      
       if(array[i][j] == space)
-        tft.fillRect(pixelX + shift, pixelY + shift, pixelX + ratio - shift, pixelY + ratio - shift, ILI9341_WHITE);
+        tft.fillRect(pixelX, pixelY, ratio, ratio, ILI9341_WHITE);
       else if (array[i][j] == border)
-        tft.fillRect(pixelX + shift, pixelY + shift, pixelX + ratio - shift, pixelY + ratio - shift, ILI9341_GREEN);
+        tft.fillRect(pixelX, pixelY, ratio, ratio, ILI9341_GREEN);
       else if (array[i][j] == enemy)
-        tft.fillRect(pixelX + shift, pixelY + shift, pixelX + ratio - shift, pixelY + ratio - shift, ILI9341_BLACK);
+        tft.fillRect(pixelX, pixelY, ratio, ratio, ILI9341_BLACK);
       else if (array[i][j] == spaceship)
-        tft.fillRect(pixelX + shift, pixelY + shift, pixelX + ratio - shift, pixelY + ratio - shift, ILI9341_BLUE);
+        tft.fillRect(pixelX, pixelY, ratio, ratio, ILI9341_BLUE);
       else if (array[i][j] == spaceshipMissile)
-        tft.fillRect(pixelX + (shift + 2), pixelY + (shift + 2), pixelX + ratio - (shift + 2), pixelY + ratio - (shift + 2), ILI9341_ORANGE);
+        tft.fillRect(pixelX, pixelY, shift, shift, ILI9341_ORANGE);
       else if(array[i][j] = enemyMissile)
-        tft.fillRect(pixelX + (shift + 2), pixelY + (shift + 2), pixelX + ratio - (shift + 2), pixelY + ratio - (shift + 2), ILI9341_ORANGE);
-    }
-  }
-    tft.setCursor(screensizeX + ratio, screensizeY + ratio);
-    tft.print("Life Points: ");
+        tft.fillRect(pixelX, pixelY, shift, shift, ILI9341_ORANGE);
+   //  }
+ // }
+
+    String lifepts =  "Life Points ";
     for(int i = 0; i < lifepoints; i++)
-      tft.print(life);
-
+        lifepts += "* ";
+    tft.setCursor(20, 220);
+    tft.print(lifepts);
 }
 
-int getSpaceInvadersInput() {
-    //Position 1-> left, 2-> right, 3->fire
-    int touch = 0, position;
-
-  while (touch == 0) {
-    if (ts.touched()) {
-      TS_Point p = ts.getPoint();
-      p.x = map(p.x, 0, 240, 240, 0);
-      p.y = map(p.y, 0, 320, 320, 0);
-
-      if (p.x >= 0 && p.x < 120 && p.y >= 260 && p.y < 320)
-        position = 1;
-      else if (p.x >= 120 && p.x < 240 && p.y >= 260 && p.y < 320)
-        position = 2;
-      else if (p.x >= 0 && p.x < 240 && p.y >= 0 && p.y < 260)
-        position = 3;
-
-      touch = 1;
-    }
-  }
-  return position;
-}
-
-int SpaceInvaders() {
-  int position = 0;
+void SpaceInvaders() {
+  int position;
   tft.fillScreen(ILI9341_BLACK);
 
+  for(int posY = 0; posY < sizeY; posY++){
+    for(int posX = 0; posX < sizeX; posX++){
+      updateGameSpace(GameSpace, posY, posX);
+    }
+  }
+  
   while(endgame == false) {
     // Iterate through each game state position and do updates
     for(int posY = 0; posY < sizeY; posY++) {
       for(int posX = 0; posX < sizeX; posX++){
 
         char current = GameSpace[posY][posX];
-        position = getSpaceInvadersInput();
+            if (ts.touched()) {
+                TS_Point p = ts.getPoint();
+                p.x = map(p.x, 0, 240, 240, 0);
+                p.y = map(p.y, 0, 320, 320, 0);
 
+                if (p.x >= 0 && p.x < 120 && p.y >= 260 && p.y < 320)
+                  position = 1;
+                else if (p.x >= 120 && p.x < 240 && p.y >= 260 && p.y < 320)
+                  position = 2;
+                else if (p.x >= 0 && p.x < 240 && p.y >= 0 && p.y < 260)
+                  position = 3;
+                else 
+                  position = 0;
+            }
+        
         // Current position is where the spaceship is
         if (current == spaceship) {
 
@@ -746,8 +726,12 @@ int SpaceInvaders() {
 
             if (posX > 1) {
               GameSpace[posY][posX] = space;
+              updateGameSpace(GameSpace, posY, posX);
+              
               posX--;
+              
               GameSpace[posY][posX] = spaceship;
+              updateGameSpace(GameSpace, posY, posX);
             }
 
           }
@@ -757,8 +741,12 @@ int SpaceInvaders() {
 
             if (posX < sizeX - 3) {
               GameSpace[posY][posX] = space;
+              updateGameSpace(GameSpace, posY, posX);
+              
               posX++;
+              
               GameSpace[posY][posX] = spaceship;
+              updateGameSpace(GameSpace, posY, posX);
             }
           }
 
@@ -767,16 +755,19 @@ int SpaceInvaders() {
 
             posY--;
             GameSpace[posY][posX] = spaceshipMissile;
+            updateGameSpace(GameSpace, posY, posX);
           }
 
         }
-
+       
         // Current position is where an enemy is. Randomize number to check if that enemy is firing a missile.
         else if (current == enemy) {
 
           if (rand() % 100 < shootingrate) {
             posY++;
+            
             GameSpace[posY][posX] = enemyMissile;
+            updateGameSpace(GameSpace, posY, posX);
           }
         }
 
@@ -788,15 +779,20 @@ int SpaceInvaders() {
 
             // Erase current position of missile
             GameSpace[posY][posX] = space;
+            updateGameSpace(GameSpace, posY, posX);
+            
             posY--;
-
+            
             // If next position up is empty space put the missile there
-            if(GameSpace[posY][posX] == space)
+            if(GameSpace[posY][posX] == space){
               GameSpace[posY][posX] = spaceshipMissile;
-
+              updateGameSpace(GameSpace, posY, posX);
+            }
+            
             // If next position up is enemy, delete enemy, update enemy count.
             else if (GameSpace[posY][posX] == enemy) {
               GameSpace[posY][posX] = space;
+              updateGameSpace(GameSpace, posY, posX);
               enemyCount--;
 
               // No more enemies, user wins.
@@ -808,18 +804,20 @@ int SpaceInvaders() {
           }
 
           // If missile reaches corner, eliminate the missile.
-          else if (posY == 1)
+          else if (posY == 1){
             GameSpace[posY][posX] = space;
+            updateGameSpace(GameSpace, posY, posX);
+          }
         }
-
+        
         // Current postion is where enemy missile is.
         else if (current == enemyMissile) {
 
           // User was hit. Reduce life points. Check if game over.
           if (GameSpace[posY + 1][posX] == spaceship) {
-
+            
             lifepoints--;
-
+            
             if (lifepoints == 0) {
               gameover = true;
               endgame = true;
@@ -829,20 +827,30 @@ int SpaceInvaders() {
           // If missile is in between, advance missile one more towards bottom corner.
           else if (posY < sizeY - 2 && GameSpace[posY + 1][posX] == space) {
             GameSpace[posY][posX] = space;
+            updateGameSpace(GameSpace, posY, posX);
+            
             posY++;
+            
             GameSpace[posY][posX] = enemyMissile;
+            updateGameSpace(GameSpace, posY, posX);
           }
 
+          else if(GameSpace[posY + 1][posX] == border){
+            GameSpace[posY][posX] = space;
+            updateGameSpace(GameSpace, posY, posX);   
+          }
           // Enemy missile reached bottom corner without hitting user. Erace enemy missile
           else if (posY == (sizeY - 2) && GameSpace[posY][posX] != spaceship)
             GameSpace[posY][posX] = space;
+            updateGameSpace(GameSpace, posY, posX);
         }
-
+      
       }
     }
-
+  
     delay(gamespeed);
     // Update game space for each arrat element
-    updateGameSpace(GameSpace);
+    //updateGameSpace(GameSpace);
+    
   }
-};
+}
