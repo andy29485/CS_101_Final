@@ -408,10 +408,10 @@ void Snake() {
     }
   }
   for(int i=0; i<SNAKE_SIZE; ++i) {
-    snake_map[         0][         i] = SNAKE_WALL;
-    snake_map[SNAKE_SIZE][         i] = SNAKE_WALL;
-    snake_map[         i][SNAKE_SIZE] = SNAKE_WALL;
-    snake_map[         i][         0] = SNAKE_WALL;
+    snake_map[           0][           i] = SNAKE_WALL;
+    snake_map[SNAKE_SIZE-1][           i] = SNAKE_WALL;
+    snake_map[           i][SNAKE_SIZE-1] = SNAKE_WALL;
+    snake_map[           i][           0] = SNAKE_WALL;
   }
 
   // put the player on the map
@@ -535,11 +535,11 @@ bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
     }
   }
 
-  int colour = ILI9341_GREEN;
-  tft.fillRect(offset_x/2,width+offset_y/2,width*SNAKE_SIZE,width,colour);
+  colour = ILI9341_BLACK;
+  tft.fillRect(0, 0, width*SNAKE_SIZE, width, colour);
   tft.setCursor(10, 5);
   tft.setTextColor(ILI9341_WHITE);
-  tft.setTextSize(1);
+  tft.setTextSize(2);
   tft.print("Score:  ");
   tft.print(p.score);
 
@@ -572,18 +572,22 @@ void snake_process_input(Player& player) {
 
     if(p.x > p.y) {   // top right
       if(500 - p.x > p.y) { // TOP
-        player.dir = UP;
+        if(player.dir != UP)
+          player.dir = DOWN;
       }
       else {            // RIGHT
-        player.dir = RIGHT;
+        if(player.dir != LEFT)
+          player.dir = RIGHT;
       }
     }
     else { // bottom left
-      if(500 - p.x > p.y) { // BOTTOM
-        player.dir = DOWN;
+      if(500 - p.x > p.y) {
+        if(player.dir != DOWN)
+          player.dir = UP;
       }
-      else {            // LEFT
-        player.dir = LEFT;
+      else {
+        if(player.dir != RIGHT)
+          player.dir = LEFT;
       }
     }
     /*
