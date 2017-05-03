@@ -415,8 +415,8 @@ void Snake() {
   }
 
   // put the player on the map
-  p.x = SNAKE_SIZE/2;
-  p.y = SNAKE_SIZE/2;
+  p.x     = SNAKE_SIZE/2;
+  p.y     = SNAKE_SIZE/2;
   p.score = 0;
   snake_map[p.y][p.x] = 1;
 
@@ -429,6 +429,7 @@ void snake_main_loop(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
   unsigned long curMillis = millis();
   unsigned long oldMillis = millis();
   do {
+    curMillis = millis();
     snake_process_input(p);
     if(curMillis-oldMillis > DELAY_TIME) {
       oldMillis = curMillis;
