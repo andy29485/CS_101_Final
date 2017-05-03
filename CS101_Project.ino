@@ -346,7 +346,7 @@ void snake_main_loop(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
   snake_display(snake_map, p.score);
   do {
     snake_process_input(p);
-    delay(60); // TODO - not sure about the arduino API
+    delay(100); // TODO - not sure about the arduino API
   } while(snake_move(snake_map, p));
 
   tft.fillScreen(ILI9341_BLACK);
@@ -390,15 +390,16 @@ void snake_display(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], const int& score) 
 
       // nothing
       else
-        colour = ILI9341_BLACK;
+        colour = 0;
 
-      tft.fillRect(i*width+offset_x/2, j*width+offset_y/2, width,width, colour);
+      if(colour) // TODO maybe this needs to be `if(colour != 0)`
+        tft.fillRect(i*width+offset_x/2,j*width+offset_y/2,width,width,colour);
     }
   }
 }
 
 bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
-  int nPoints  = 0;
+  int nPoints = 0;
   int x, y;
 
   // move to next space
@@ -439,7 +440,6 @@ bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
       else if(snake_map[j][i] == SNAKE_POINT)
         ++nPoints;
       if(snake_map[j][i] > p.score+4) {
-        colour = ILI9341_RED;
         tft.fillRect(i*width+offset_x/2,j*width+offset_y/2,width,width,colour);
         snake_map[j][i] = 0;
       }
@@ -452,7 +452,7 @@ bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
     y = random() % (SNAKE_SIZE-2) + 1;
     if (snake_map[y][x] == 0) {
       snake_map[y][x] = SNAKE_POINT;
-      colour = ILI9341_BLACK;
+      colour = ILI9341_RED;
       tft.fillRect(x*width+offset_x/2,y*width+offset_y/2,width,width,colour);
       ++nPoints;
     }
@@ -461,7 +461,7 @@ bool snake_move(char (&snake_map)[SNAKE_SIZE][SNAKE_SIZE], Player& p) {
   // set the head of the player to their current location
   snake_map[p.y][p.x] = 1;
   colour = ILI9341_GREEN;
-  tft.fillRect(i*width+offset_x/2,j*width+offset_y/2,width,width,colour);
+  tft.fillRect(p.x*width+offset_x/2, p.y*width+offset_y/2, width,width, colour);
   return true;
 }
 
